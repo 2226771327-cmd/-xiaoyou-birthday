@@ -171,17 +171,16 @@ window.addEventListener('pointerdown', () => {
   const audio = document.querySelector('audio');
   if (!cover || !audio) return;
 
-  async function startAndOpen(){
-    try {
-      audio.muted = false;
-      audio.volume = 0.72;
-      await audio.play();
-    } catch(e) {
-      // If the browser still blocks it, the cover remains so the user can retry.
-      return;
-    }
+  function startAndOpen(){
+    // Opening the card must not depend on whether iOS/Safari allows audio autoplay.
+    // The tap itself is enough to unlock the animation; audio is attempted separately.
     cover.classList.add('hide');
     setTimeout(()=>cover.remove(), 700);
+
+    audio.muted = false;
+    audio.volume = 0.72;
+    const p = audio.play();
+    if (p && p.catch) p.catch(() => {});
   }
 
   // Autoplay is attempted, but the first touch is the reliable mobile fallback.
