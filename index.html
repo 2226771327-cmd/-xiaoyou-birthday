@@ -58,6 +58,8 @@ audio{display:none}
   cursor: pointer;
 }
 #tapToPlay.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+#tapState:checked + #tapToPlay { opacity: 0; visibility: hidden; pointer-events: none; }
+#tapState:checked + #tapToPlay + .float { /* keep following content unchanged */ }
 #tapToPlay .tap-inner { text-align:center; padding:32px; }
 #tapToPlay .heart { font-size:42px; animation: tapHeart 1.6s ease-in-out infinite; }
 #tapToPlay .tap-title { margin-top:16px; font-size:22px; letter-spacing:3px; color:#8f6875; }
@@ -78,13 +80,14 @@ audio{display:none}
 </style>
 </head>
 <body>
-<div id="tapToPlay" aria-label="轻触开启生日贺卡">
+<input id="tapState" type="checkbox" aria-label="开启生日贺卡" style="position:absolute;left:-9999px;opacity:0;pointer-events:none;">
+<label id="tapToPlay" for="tapState" aria-label="轻触开启生日贺卡">
   <div class="tap-inner">
     <div class="heart">♡</div>
     <div class="tap-title">To. 小柚</div>
     <div class="tap-sub">轻触一下 · 开启生日祝福</div>
   </div>
-</div>
+</label>
 
 <div class="float" style="left:10%;animation-delay:-2s">♡</div>
 <div class="float" style="left:72%;animation-delay:-5s">✿</div>
@@ -172,11 +175,11 @@ window.addEventListener('pointerdown', () => {
   if (!cover || !audio) return;
 
   function startAndOpen(){
-    // Opening the card must not depend on whether iOS/Safari allows audio autoplay.
-    // The tap itself is enough to unlock the animation; audio is attempted separately.
+    // The visual opening is CSS-controlled by the checkbox, so it works even if
+    // Safari blocks audio or delays JavaScript. JavaScript only handles the music.
+    const state = document.getElementById('tapState');
+    if (state) state.checked = true;
     cover.classList.add('hide');
-    setTimeout(()=>cover.remove(), 700);
-
     audio.muted = false;
     audio.volume = 0.72;
     const p = audio.play();
